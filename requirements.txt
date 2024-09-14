@@ -4,5 +4,3 @@ requests
 streamlit
 XlsxWriter
 openpyxl
-json
-date
