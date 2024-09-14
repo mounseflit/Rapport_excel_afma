@@ -1,5 +1,4 @@
 import pandas as pd
-import locale
 import json
 import requests
 from datetime import date
@@ -64,6 +63,7 @@ def generatethis(year, data):
         if 'Non identifié' in count:
             # Move 'Non identifié' to the last row
             count = count.reindex(count.index.drop('Non identifié').tolist() + ['Non identifié'])
+
 
         # Get the name of the month in French
         month_name = pd.to_datetime(str(month), format='%m').strftime('%B')
@@ -415,9 +415,9 @@ def save_all():
     csv_files = [
         'Evolution_{}.csv'.format(year),
         'Evolution_Global.csv',
-        'Rating_Stores.csv',
         'taux_telechargement.csv',
-        'taux_utilisation.csv'
+        'taux_utilisation.csv',
+        'Rating_Stores.csv'
     ]
 
     # Create a Pandas Excel writer using XlsxWriter as the engine
@@ -437,24 +437,64 @@ def save_all():
 # -------------------------------------------------------
 
 def main():
+
+     # Apply custom CSS to change button color to green
+    st.markdown("""
+        <style>
+        .stButton button {
+            margin-top: 3rem !important;
+            background-color: #00a631 !important;
+            border-color: #00a631 !important;
+            color: white !important;
+        }
+
+        .stButton button:hover {
+            background-color: green !important;
+            border-color: green !important;
+            color: white !important;
+        }
+            
+
+        </style>
+        """, unsafe_allow_html=True)
     
     print('Running the script...')
 
     # Streamlit interface
-    st.title("Excel File Processor")
+    st.title("🗎 AFMA : Generateur de Rapport d'Application Mobile format Excel ")
 
     # File uploader
-    uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx", "xls", "xltx", "xlsm", "xltm", "xlam", "xlsb"])
+    uploaded_file = st.file_uploader("Veuillez télécharger le fichier Excel que vous souhaitez utiliser", type=["xlsx", "xls", "xltx", "xlsm", "xltm", "xlam", "xlsb"])
 
     # Month selector
-    month = st.selectbox("Select the month", [f"{i:02d}" for i in range(1, 13)])
+    month = st.selectbox("Veuillez sélectionner le mois de fin de la collecte des données", [f"{i:02d}" for i in range(1, 13)])
 
     # Get the current year
     year = date.today().strftime("%Y")
 
-    if uploaded_file is not None:
+   
+
+    # create button to process the data
+    if st.button("Generate!", key="generate_button", help="Click to process the data", use_container_width=True, type="primary") and uploaded_file is not None:
+
+        # Display a message
+        st.info("Processing the data...")
+
+        # mask the generate button
+        st.markdown("""
+            <style>
+            .stButton button {
+                display: none !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
+        print('Processing the file...')
+
         # Read the uploaded Excel file
         data = pd.read_excel(uploaded_file)
+
+        print('Processing the data...')
 
         # Process the data
         generatethis(year, data)
@@ -467,47 +507,44 @@ def main():
 
         st.success("Processing complete.")
 
+        # mask the generate button
+        st.markdown("""
+            <style>
+            .stButton button {
+                display: block !important;
+            }
+                    
+            .download_button {
+                background-color: #00a631 !important;
+                border-color: #00a631 !important;
+                color: white !important;
+            }
+            
+            .download_button:hover {
+                background-color: green !important;
+                border-color: green !important;
+                color: white !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
+
         # download Rapport_Appli_Mobile.xlsx
         st.markdown("### Download the Excel file")
-        st.markdown(
-            f'<a href="Rapport_Appli_Mobile.xlsx" download="Rapport_Appli_Mobile.xlsx">Click here to download the Excel file</a>',
-            unsafe_allow_html=True,
-        )
+
+        with open("Rapport_Appli_Mobile.xlsx", "rb") as file:
+            btn = st.download_button(
+                label="Download Rapport_Appli_Mobile.xlsx 📁",
+                data=file,
+                file_name="Rapport_Appli_Mobile.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                key="download_button"
+            )
+
 
 if __name__ == "__main__":
     main()
 
 
 #-------------------------------------------------------
-
-
-# # Get the current month
-# month = '05'
-
-# # Get the current year
-# year = date.today().strftime("%Y")
-
-# # Excel file
-# excel_file = 'AMUSERS.xltx'
-
-
-# # Read the Excel file
-# data = pd.read_excel(excel_file)
-# # data = pd.read_csv('original.csv')
-
-# generatethis(year, data)
-
-# generate(year, data)
-
-# group(year)
-
-# generate_taux_util(year,month,data)
-
-# generate_taux_tele(data,data)
-
-# generate_ratings()
-
-# save_all()
-
-# #-------------------------------------------------------
 
