@@ -4,4 +4,5 @@ requests
 streamlit
 XlsxWriter
 openpyxl
-local
+locale
+json
