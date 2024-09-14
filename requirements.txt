@@ -4,6 +4,5 @@ requests
 streamlit
 XlsxWriter
 openpyxl
-locale
 json
 date
