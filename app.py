@@ -444,7 +444,7 @@ def main():
     st.title("Excel File Processor")
 
     # File uploader
-    uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx", "xls", "csv", "txt", "xltx", "xlsm", "xltm", "xlam", "xlsb"])
+    uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx", "xls", "xltx", "xlsm", "xltm", "xlam", "xlsb"])
 
     # Month selector
     month = st.selectbox("Select the month", [f"{i:02d}" for i in range(1, 13)])
