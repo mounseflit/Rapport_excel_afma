@@ -439,41 +439,46 @@ def save_all():
 
 # -------------------------------------------------------
 
+def main():
+    
+    print('Running the script...')
+
+    # Streamlit interface
+    st.title("Excel File Processor")
+
+    # File uploader
+    uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx", "xls"])
+
+    # Month selector
+    month = st.selectbox("Select the month", [f"{i:02d}" for i in range(1, 13)])
+
+    # Get the current year
+    year = date.today().strftime("%Y")
+
+    if uploaded_file is not None:
+        # Read the uploaded Excel file
+        data = pd.read_excel(uploaded_file)
+
+        # Process the data
+        generatethis(year, data)
+        generate(year, data)
+        group(year)
+        generate_taux_util(year, month, data)
+        generate_taux_tele(data, data)
+        generate_ratings()
+        save_all()
+
+        st.success("Processing complete.")
+
+        # download Rapport_Appli_Mobile.xlsx
+        st.markdown("### Download the Excel file")
+        st.markdown(
+            f'<a href="Rapport_Appli_Mobile.xlsx" download="Rapport_Appli_Mobile.xlsx">Click here to download the Excel file</a>',
+            unsafe_allow_html=True,
+        )
+
 if __name__ == "__main__":
-
-        # Streamlit interface
-        st.title("Excel File Processor")
-
-        # File uploader
-        uploaded_file = st.file_uploader("Choose an Excel file", type=["xlsx", "xls"])
-
-        # Month selector
-        month = st.selectbox("Select the month", [f"{i:02d}" for i in range(1, 13)])
-
-        # Get the current year
-        year = date.today().strftime("%Y")
-
-        if uploaded_file is not None:
-            # Read the uploaded Excel file
-            data = pd.read_excel(uploaded_file)
-
-            # Process the data
-            generatethis(year, data)
-            generate(year, data)
-            group(year)
-            generate_taux_util(year, month, data)
-            generate_taux_tele(data, data)
-            generate_ratings()
-            save_all()
-
-            st.success("Processing complete.")
-
-            # download Rapport_Appli_Mobile.xlsx
-            st.markdown("### Download the Excel file")
-            st.markdown(
-                f'<a href="Rapport_Appli_Mobile.xlsx" download="Rapport_Appli_Mobile.xlsx">Click here to download the Excel file</a>',
-                unsafe_allow_html=True,
-            )
+    main()
 
 
 #-------------------------------------------------------
@@ -508,3 +513,4 @@ if __name__ == "__main__":
 # save_all()
 
 # #-------------------------------------------------------
+
