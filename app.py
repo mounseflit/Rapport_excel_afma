@@ -65,9 +65,6 @@ def generatethis(year, data):
             # Move 'Non identifié' to the last row
             count = count.reindex(count.index.drop('Non identifié').tolist() + ['Non identifié'])
 
-        # Set the locale to French
-        locale.setlocale(locale.LC_TIME, 'fr_FR')
-
         # Get the name of the month in French
         month_name = pd.to_datetime(str(month), format='%m').strftime('%B')
 
