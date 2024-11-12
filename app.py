@@ -65,12 +65,8 @@ def generatethis(year, data):
             count = count.reindex(count.index.drop('Non identifié').tolist() + ['Non identifié'])
 
 
-       # Get the name of the month in French without setting locale
-        french_months = {'January': 'Janvier', 'February': 'Février', 'March': 'Mars', 'April': 'Avril','May': 'Mai', 'June': 'Juin', 'July': 'Juillet', 'August': 'Août', 'September': 'Septembre', 'October': 'Octobre', 'November': 'Novembre', 'December': 'Décembre'}
-        month_name = pd.to_datetime(f'{year}-{month}-01').strftime('%B')
-        month_name = french_months[month_name]
-        month_name = month_name.capitalize()
-
+        # Get the name of the month in French
+        month_name = pd.to_datetime(str(month), format='%m').strftime('%B')
 
         # Read the output CSV file into a DataFrame
         output_df = pd.read_csv('Evolution_{}.csv'.format(year))
@@ -126,11 +122,8 @@ def generate(year, data):
         # Drop rows with missing values in the 'DATE_DERNIERE_CONNEXION' column
         df = df.dropna(subset=['DATE_DERNIERE_CONNEXION'])
         
-        # First, convert the 'DATE_DERNIERE_CONNEXION' column to datetime format
-        df['DATE_DERNIERE_CONNEXION'] = pd.to_datetime(df['DATE_DERNIERE_CONNEXION'], format='%m/%d/%Y', errors='coerce')
-
         # Filter the DataFrame based on the year
-        df = df[df['DATE_DERNIERE_CONNEXION'].dt.year == y]
+        df = df[df['DATE_DERNIERE_CONNEXION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').year) == int(y)]
 
         # Change the N/a in 'NOM_CLIENT' to 'Non identifié'
         df['NOM_CLIENT'] = df['NOM_CLIENT'].fillna('Non identifié')
