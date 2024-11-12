@@ -65,8 +65,12 @@ def generatethis(year, data):
             count = count.reindex(count.index.drop('Non identifié').tolist() + ['Non identifié'])
 
 
-        # Get the name of the month in French
+       # Get the name of the month in French without setting locale
+        french_months = {'January': 'Janvier', 'February': 'Février', 'March': 'Mars', 'April': 'Avril','May': 'Mai', 'June': 'Juin', 'July': 'Juillet', 'August': 'Août', 'September': 'Septembre', 'October': 'Octobre', 'November': 'Novembre', 'December': 'Décembre'}
         month_name = pd.to_datetime(f'{year}-{month}-01').strftime('%B')
+        month_name = french_months[month_name]
+        month_name = month_name.capitalize()
+
 
         # Read the output CSV file into a DataFrame
         output_df = pd.read_csv('Evolution_{}.csv'.format(year))
