@@ -16,26 +16,22 @@ def generatethis(year, data):
     # Read the input data
     df = data
 
-    # Extract the unique client names and create the base DataFrame
+    # Extract unique client names
     unique_names = df['NOM_CLIENT'].drop_duplicates()
     new_df = pd.DataFrame({'Client': unique_names})
-
-    # Add a "Non identifié" row
     new_df = new_df._append({'Client': 'Non identifié'}, ignore_index=True)
-
-    # Remove duplicates and NaN values
     new_df.drop_duplicates(subset='Client', inplace=True)
     new_df.dropna(subset=['Client'], inplace=True)
-
-    # Save the initial CSV with just the clients for structure
     new_df.to_csv('Evolution_{}.csv'.format(year), index=False)
 
-    # Remove duplicates and NaNs in the original data as needed
+    # Drop duplicates and NaNs in DATE_DERNIERE_CONNEXION, and convert to datetime
     df = df.drop_duplicates(subset=['NUM_CIN'])
     df = df.dropna(subset=['DATE_DERNIERE_CONNEXION'])
-
-    # Convert 'DATE_DERNIERE_CONNEXION' to datetime
     df['DATE_DERNIERE_CONNEXION'] = pd.to_datetime(df['DATE_DERNIERE_CONNEXION'], format='%m/%d/%Y', errors='coerce')
+
+    # Debug: Check the first few entries of DATE_DERNIERE_CONNEXION after conversion
+    print("Sample of converted DATE_DERNIERE_CONNEXION:")
+    print(df['DATE_DERNIERE_CONNEXION'].head())
 
     # Loop through each month and calculate counts
     for month in range(1, 13):
@@ -43,36 +39,39 @@ def generatethis(year, data):
         df_month = df[(df['DATE_DERNIERE_CONNEXION'].dt.month == month) &
                       (df['DATE_DERNIERE_CONNEXION'].dt.year == year)]
 
-        # Drop duplicates on 'NUM_CIN' and fill NaN clients as "Non identifié"
+        # Debug: Check the filtered data for each month
+        print(f"\nData for {year}-{month:02d}:")
+        print(df_month[['NOM_CLIENT', 'DATE_DERNIERE_CONNEXION']].head())
+
+        # Drop duplicates and fill NaN clients as "Non identifié"
         df_month = df_month.drop_duplicates(subset=['NUM_CIN'])
         df_month['NOM_CLIENT'] = df_month['NOM_CLIENT'].fillna('Non identifié')
 
         # Count occurrences of each client
         count = df_month['NOM_CLIENT'].value_counts()
 
-        # If 'Non identifié' exists, reindex to place it at the end
+        # Debug: Print count to verify client counts
+        print(f"\nCounts for month {month} ({year}-{month:02d}):")
+        print(count)
+
+        # Ensure 'Non identifié' is last
         if 'Non identifié' in count:
             count = count.reindex(count.index.drop('Non identifié').tolist() + ['Non identifié'])
 
-        # Get month name in French
+        # Month name in French
         month_name = pd.to_datetime(str(month), format='%m').strftime('%B')
 
-        # Read the existing CSV file to append data
+        # Read and merge data into output CSV
         output_df = pd.read_csv('Evolution_{}.csv'.format(year))
-
-        # Merge counts into the output DataFrame
         merged_df = pd.merge(output_df, count.rename(month_name), how='left', left_on='Client', right_index=True)
-
-        # Fill missing values with 0 and convert to integer for cleaner format
         merged_df[month_name] = merged_df[month_name].fillna(0).astype(int)
-
-        # Save the updated DataFrame back to CSV
         merged_df.to_csv('Evolution_{}.csv'.format(year), index=False)
 
-    # Finally, calculate the total count across all months
+    # Calculate the total count across all months
     output_df = pd.read_csv('Evolution_{}.csv'.format(year))
     output_df['Total'] = output_df.iloc[:, 1:].sum(axis=1)
     output_df.to_csv('Evolution_{}.csv'.format(year), index=False)
+
 
 
 
