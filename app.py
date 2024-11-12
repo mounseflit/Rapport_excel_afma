@@ -223,30 +223,28 @@ def generate_taux_util(year,month,data):
     # Filter the DataFrame to include non duplicated values
     df = df.drop_duplicates(subset=['NUM_CIN'])
 
-
     # Change the N/a in 'NOM_CLIENT' to 'Non identifié'
     df['NOM_CLIENT'] = df['NOM_CLIENT'].fillna('Non identifié')
-
-
+    
     # Drop rows with missing values in the 'DATE_DERNIERE_UTILISATION' column
     df = df.dropna(subset=['DATE_DERNIERE_UTILISATION'])
-        
+    
     # Count the occurrences of each NOM_CLIENT
     count = df['NOM_CLIENT'].value_counts()
-
-    # If 'Non identifié' exists
+    
+     # If 'Non identifié' exists
     if 'Non identifié' in count:
             # move 'Non identifié' to the last row
         count = count.reindex(count.index.drop('Non identifié').tolist() + ['Non identifié'])
-
-
-    # Filter the DataFrame based on the specified year and month
-    df = df[df['DATE_DERNIERE_UTILISATION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').month) == month]
+        
+    
+    # Filter the DataFrame based on the specified year and month in 'DATE_DERNIERE_UTILISATION'
     df = df[df['DATE_DERNIERE_UTILISATION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').year) == int(year)]
+    df = df[df['DATE_DERNIERE_UTILISATION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').month) == int(month)]
 
     # count new occurences of NOM_CLIENT
     count2 = df['NOM_CLIENT'].value_counts()
-
+    
     # If 'Non identifié' exists
     if 'Non identifié' in count2:
             # move 'Non identifié' to the last row
