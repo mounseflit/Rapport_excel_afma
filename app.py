@@ -240,11 +240,9 @@ def generate_taux_util(year,month,data):
         count = count.reindex(count.index.drop('Non identifié').tolist() + ['Non identifié'])
 
 
-    # First, convert the 'DATE_DERNIERE_UTILISATION' column to datetime format
-    df['DATE_DERNIERE_UTILISATION'] = pd.to_datetime(df['DATE_DERNIERE_UTILISATION'], format='%m/%d/%Y', errors='coerce')
-
     # Filter the DataFrame based on the specified year and month
-    df = df[(df['DATE_DERNIERE_UTILISATION'].dt.year == year) & (df['DATE_DERNIERE_UTILISATION'].dt.month == month)]
+    df = df[df['DATE_DERNIERE_UTILISATION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').month) == month]
+    df = df[df['DATE_DERNIERE_UTILISATION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').year) == int(year)]
 
     # count new occurences of NOM_CLIENT
     count2 = df['NOM_CLIENT'].value_counts()
