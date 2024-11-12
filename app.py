@@ -39,16 +39,16 @@ def generatethis(year, data):
     # Filter the DataFrame to include non duplicated values
     df = df.drop_duplicates(subset=['NUM_CIN'])
 
-    # Drop rows with missing values in the 'DATE_CREATION' column
-    df = df.dropna(subset=['DATE_CREATION'])
+    # Drop rows with missing values in the 'DATE_DERNIERE_CONNEXION' column
+    df = df.dropna(subset=['DATE_DERNIERE_CONNEXION'])
+
+    # First, convert the 'DATE_DERNIERE_CONNEXION' column to datetime format
+    df['DATE_DERNIERE_CONNEXION'] = pd.to_datetime(df['DATE_DERNIERE_CONNEXION'], format='%m/%d/%Y', errors='coerce')
 
     # Loop for each month will be stored in its own dataframe
     for month in range(1, 13):
-        # Filter the DataFrame based on the 'DATE_CREATION' column
-        if month < 10:
-            df_month = df[df['DATE_CREATION'].str.contains('{}-0{}'.format(year, month))]
-        else:
-            df_month = df[df['DATE_CREATION'].str.contains('{}-{}'.format(year, month))]
+        # Filter the DataFrame based on the 'DATE_DERNIERE_CONNEXION' column
+        df_month = df[(df['DATE_DERNIERE_CONNEXION'].dt.month == month) & (df['DATE_DERNIERE_CONNEXION'].dt.year == year)]
 
         # Filter the DataFrame to include non duplicated values
         df_month = df_month.drop_duplicates(subset=['NUM_CIN'])
@@ -117,11 +117,14 @@ def generate(year, data):
         # Filter the DataFrame to include non duplicated values
         df = df.drop_duplicates(subset=['NUM_CIN'])
 
-        # Drop rows with missing values in the 'DATE_CREATION' column
-        df = df.dropna(subset=['DATE_CREATION'])
+        # Drop rows with missing values in the 'DATE_DERNIERE_CONNEXION' column
+        df = df.dropna(subset=['DATE_DERNIERE_CONNEXION'])
         
-        # Filter the DataFrame based on the 'DATE_CREATION' column
-        df = df[df['DATE_CREATION'].str.contains('{}'.format(str(y)))]
+        # First, convert the 'DATE_DERNIERE_CONNEXION' column to datetime format
+        df['DATE_DERNIERE_CONNEXION'] = pd.to_datetime(df['DATE_DERNIERE_CONNEXION'], format='%m/%d/%Y', errors='coerce')
+
+        # Filter the DataFrame based on the year
+        df = df[df['DATE_DERNIERE_CONNEXION'].dt.year == y]
 
         # Change the N/a in 'NOM_CLIENT' to 'Non identifié'
         df['NOM_CLIENT'] = df['NOM_CLIENT'].fillna('Non identifié')
@@ -226,8 +229,8 @@ def generate_taux_util(year,month,data):
     df['NOM_CLIENT'] = df['NOM_CLIENT'].fillna('Non identifié')
 
 
-    # Drop rows with missing values in the 'updated_at' column
-    df = df.dropna(subset=['updated_at'])
+    # Drop rows with missing values in the 'DATE_DERNIERE_UTILISATION' column
+    df = df.dropna(subset=['DATE_DERNIERE_UTILISATION'])
         
     # Count the occurrences of each NOM_CLIENT
     count = df['NOM_CLIENT'].value_counts()
@@ -238,8 +241,11 @@ def generate_taux_util(year,month,data):
         count = count.reindex(count.index.drop('Non identifié').tolist() + ['Non identifié'])
 
 
-    # Filter the DataFrame based on the 'updated_at' column
-    df = df[df['updated_at'].str.contains('{}-{}'.format(str(year), str(month)))]
+    # First, convert the 'DATE_DERNIERE_UTILISATION' column to datetime format
+    df['DATE_DERNIERE_UTILISATION'] = pd.to_datetime(df['DATE_DERNIERE_UTILISATION'], format='%m/%d/%Y', errors='coerce')
+
+    # Filter the DataFrame based on the specified year and month
+    df = df[(df['DATE_DERNIERE_UTILISATION'].dt.year == year) & (df['DATE_DERNIERE_UTILISATION'].dt.month == month)]
 
     # count new occurences of NOM_CLIENT
     count2 = df['NOM_CLIENT'].value_counts()
