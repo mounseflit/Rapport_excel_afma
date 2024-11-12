@@ -40,17 +40,15 @@ def generatethis(year, data):
     # Filter the DataFrame to include non duplicated values
     df = df.drop_duplicates(subset=['NUM_CIN'])
 
-    # Drop rows with missing values in the 'DATE_CREATION' column
-    df = df.dropna(subset=['DATE_CREATION'])
+    # Drop rows with missing values in the 'DATE_DERNIERE_CONNEXION' column
+    df = df.dropna(subset=['DATE_DERNIERE_CONNEXION'])
 
     # Loop for each month will be stored in its own dataframe
     for month in range(1, 13):
-        # Filter the DataFrame based on the 'DATE_CREATION' column
-        if month < 10:
-            df_month = df[df['DATE_CREATION'].str.contains('{}-0{}'.format(year, month))]
-        else:
-            df_month = df[df['DATE_CREATION'].str.contains('{}-{}'.format(year, month))]
-            
+        
+        # Filter the DataFrame based on the 'DATE_DERNIERE_CONNEXION' column
+        df_month = df[df['DATE_DERNIERE_CONNEXION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').month) == month]
+        df_month = df_month[df_month['DATE_DERNIERE_CONNEXION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').year) == int(year)]
 
         # Filter the DataFrame to include non duplicated values
         df_month = df_month.drop_duplicates(subset=['NUM_CIN'])
@@ -68,7 +66,7 @@ def generatethis(year, data):
 
 
         # Get the name of the month in French
-        month_name = pd.to_datetime(str(month), format='%m').strftime('%B')
+        month_name = pd.to_datetime(f'{year}-{month}-01').strftime('%B')
 
         # Read the output CSV file into a DataFrame
         output_df = pd.read_csv('Evolution_{}.csv'.format(year))
