@@ -11,89 +11,69 @@ import streamlit as st
 
 
 def generatethis(year, data):
-
     print('Creating Evaluation for year {}...'.format(year))
 
-    # Read the Excel file
+    # Read the input data
     df = data
-    
 
-    # Extract the NOM_CLIENT column and remove duplicates
+    # Extract the unique client names and create the base DataFrame
     unique_names = df['NOM_CLIENT'].drop_duplicates()
-
-    # Create a new DataFrame with the unique names in the Client column
     new_df = pd.DataFrame({'Client': unique_names})
 
-    # Add a row for "Non identifié" client
+    # Add a "Non identifié" row
     new_df = new_df._append({'Client': 'Non identifié'}, ignore_index=True)
 
-    # Filter duplicate for Client
+    # Remove duplicates and NaN values
     new_df.drop_duplicates(subset='Client', inplace=True)
-
-    # Drop n/a in client
     new_df.dropna(subset=['Client'], inplace=True)
 
-    # Write the new DataFrame to a new CSV file
+    # Save the initial CSV with just the clients for structure
     new_df.to_csv('Evolution_{}.csv'.format(year), index=False)
 
-    # Filter the DataFrame to include non duplicated values
+    # Remove duplicates and NaNs in the original data as needed
     df = df.drop_duplicates(subset=['NUM_CIN'])
-
-    # Drop rows with missing values in the 'DATE_DERNIERE_CONNEXION' column
     df = df.dropna(subset=['DATE_DERNIERE_CONNEXION'])
 
-    # First, convert the 'DATE_DERNIERE_CONNEXION' column to datetime format
+    # Convert 'DATE_DERNIERE_CONNEXION' to datetime
     df['DATE_DERNIERE_CONNEXION'] = pd.to_datetime(df['DATE_DERNIERE_CONNEXION'], format='%m/%d/%Y', errors='coerce')
 
-    # Loop for each month will be stored in its own dataframe
+    # Loop through each month and calculate counts
     for month in range(1, 13):
-        # Filter the DataFrame based on the 'DATE_DERNIERE_CONNEXION' column
-        df_month = df[(df['DATE_DERNIERE_CONNEXION'].dt.month == month) & (df['DATE_DERNIERE_CONNEXION'].dt.year == year)]
+        # Filter rows by month and year
+        df_month = df[(df['DATE_DERNIERE_CONNEXION'].dt.month == month) &
+                      (df['DATE_DERNIERE_CONNEXION'].dt.year == year)]
 
-        # Filter the DataFrame to include non duplicated values
+        # Drop duplicates on 'NUM_CIN' and fill NaN clients as "Non identifié"
         df_month = df_month.drop_duplicates(subset=['NUM_CIN'])
-
-        # Change the N/a in 'NOM_CLIENT' to 'Non identifié'
         df_month['NOM_CLIENT'] = df_month['NOM_CLIENT'].fillna('Non identifié')
 
-        # Count the occurrences of each NOM_CLIENT
+        # Count occurrences of each client
         count = df_month['NOM_CLIENT'].value_counts()
 
-        # If 'Non identifié' exists
+        # If 'Non identifié' exists, reindex to place it at the end
         if 'Non identifié' in count:
-            # Move 'Non identifié' to the last row
             count = count.reindex(count.index.drop('Non identifié').tolist() + ['Non identifié'])
 
-
-        # Get the name of the month in French
+        # Get month name in French
         month_name = pd.to_datetime(str(month), format='%m').strftime('%B')
 
-        # Read the output CSV file into a DataFrame
+        # Read the existing CSV file to append data
         output_df = pd.read_csv('Evolution_{}.csv'.format(year))
 
-        # Merge the count DataFrame with the output DataFrame based on the 'NOM_CLIENT' column
-        merged_df = pd.merge(output_df, count, how='left', left_on='Client', right_index=True)
+        # Merge counts into the output DataFrame
+        merged_df = pd.merge(output_df, count.rename(month_name), how='left', left_on='Client', right_index=True)
 
-        # Fill missing values with 0
-        merged_df.fillna(0, inplace=True)
+        # Fill missing values with 0 and convert to integer for cleaner format
+        merged_df[month_name] = merged_df[month_name].fillna(0).astype(int)
 
-        # Rename the count column to the name of the month
-        merged_df.rename(columns={'count': month_name}, inplace=True)
-
-        # Convert the count column to string and remove decimal places
-        merged_df[month_name] = merged_df[month_name].astype(int).astype(str)
-
-        # Save the merged DataFrame to a CSV file
+        # Save the updated DataFrame back to CSV
         merged_df.to_csv('Evolution_{}.csv'.format(year), index=False)
 
-    # Read the output CSV file into a DataFrame
+    # Finally, calculate the total count across all months
     output_df = pd.read_csv('Evolution_{}.csv'.format(year))
-
-    # Calculate the sum of the months for each row
     output_df['Total'] = output_df.iloc[:, 1:].sum(axis=1)
-
-    # Save the modified DataFrame to a new CSV file
     output_df.to_csv('Evolution_{}.csv'.format(year), index=False)
+
 
 
 #-------------------------------------------------------
