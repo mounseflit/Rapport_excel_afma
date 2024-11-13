@@ -215,8 +215,7 @@ def send_to_ai_api(prompt):
 
 def generate_taux_util(year,month,data):
 
-
-     # Read the Excel file
+    # Read the Excel file
     df = data
 
     print('Operating for utilisation rate...')
@@ -227,8 +226,9 @@ def generate_taux_util(year,month,data):
     # Change the N/a in 'NOM_CLIENT' to 'Non identifié'
     df['NOM_CLIENT'] = df['NOM_CLIENT'].fillna('Non identifié')
     
-    # Drop rows with missing values in the 'DATE_DERNIERE_UTILISATION' column
-    df = df.dropna(subset=['DATE_DERNIERE_UTILISATION'])
+    # Drop rows with missing values in the 'DATE_DERNIERE_CONNEXION' & 'DATE_DERNIERE_UTILISATION' column
+    # df = df.dropna(subset=['DATE_DERNIERE_CONNEXION'])
+    # df = df.dropna(subset=['DATE_DERNIERE_UTILISATION'])
     
     # Count the occurrences of each NOM_CLIENT
     count = df['NOM_CLIENT'].value_counts()
@@ -236,9 +236,12 @@ def generate_taux_util(year,month,data):
      # If 'Non identifié' exists
     if 'Non identifié' in count:
             # move 'Non identifié' to the last row
-        count = count.reindex(count.index.drop('Non identifié').tolist() + ['Non identifié'])
-        
-    
+        count = count.reindex(count.index.drop('Non identifié').tolist() + ['Non identifié']) 
+
+    # Drop rows with missing values in the 'DATE_DERNIERE_CONNEXION' & 'DATE_DERNIERE_UTILISATION' column 
+    df = df.dropna(subset=['DATE_DERNIERE_CONNEXION'])
+    df = df.dropna(subset=['DATE_DERNIERE_UTILISATION'])
+
     # Filter the DataFrame based on the specified year and month in 'DATE_DERNIERE_UTILISATION'
     df = df[df['DATE_DERNIERE_UTILISATION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').year) == int(year)]
     df = df[df['DATE_DERNIERE_UTILISATION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').month) == int(month)]
@@ -290,7 +293,7 @@ def generate_taux_tele(year,month,data):
 
 
 
-    # Read the Excel file
+       # Read the Excel file
     df = data
     # df2 = all
 
@@ -306,9 +309,10 @@ def generate_taux_tele(year,month,data):
     # df2['NOM_CLIENT'] = df2['NOM_CLIENT'].fillna('Non identifié')
 
 
-    # Drop rows with missing values in the 'DATE_DERNIERE_CONNEXION' column
-    df = df.dropna(subset=['DATE_DERNIERE_CONNEXION'])
-    
+    # Drop rows with missing values in the 'DATE_DERNIERE_CONNEXION' & 'DATE_DERNIERE_UTILISATION' column
+    # df = df.dropna(subset=['DATE_DERNIERE_CONNEXION'])
+    # df = df.dropna(subset=['DATE_DERNIERE_UTILISATION'])
+
 
     # Count the occurrences of each NOM_CLIENT
     count = df['NOM_CLIENT'].value_counts()
@@ -325,10 +329,14 @@ def generate_taux_tele(year,month,data):
     #     count2 = count2.reindex(count2.index.drop('Non identifié').tolist() + ['Non identifié'])
 
 
+    # Drop rows with missing values in the 'DATE_DERNIERE_CONNEXION' & 'DATE_DERNIERE_UTILISATION' column
+    df = df.dropna(subset=['DATE_DERNIERE_CONNEXION'])
+    df = df.dropna(subset=['DATE_DERNIERE_UTILISATION'])
+
+
     # Filter the DataFrame based on the specified year and month in 'DATE_DERNIERE_CONNEXION'
     df = df[df['DATE_DERNIERE_CONNEXION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').year) == int(year)]
     df = df[df['DATE_DERNIERE_CONNEXION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').month) == int(month)]
-
 
 
     # count new occurences of NOM_CLIENT
