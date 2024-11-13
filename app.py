@@ -208,14 +208,15 @@ def send_to_ai_api(prompt):
     return response.json()['response']
 
 
+
 #-------------------------------------------------------    
+
 
 
 def generate_taux_util(year,month,data):
 
 
-    
-    # Read the Excel file
+     # Read the Excel file
     df = data
 
     print('Operating for utilisation rate...')
@@ -266,6 +267,8 @@ def generate_taux_util(year,month,data):
     countf['Total_users'] = countf['Total_users'].astype(str)
     countf['utilisateur_actuel'] = countf['utilisateur_actuel'].astype(int).astype(str)
 
+    
+
     #calculate the percentage of taux d'utilisation
     countf['taux_utilisation'] = countf['taux_utilisation'] * 100 
 
@@ -279,12 +282,12 @@ def generate_taux_util(year,month,data):
     #save the merged dataframe to a csv file
     countf.to_csv('taux_utilisation.csv')
     
-
+ 
 #-------------------------------------------------------
 
 
-
 def generate_taux_tele(year,month,data):
+
 
 
     # Read the Excel file
@@ -367,9 +370,8 @@ def generate_taux_tele(year,month,data):
 
     #save the merged dataframe to a csv file
     countf.to_csv('taux_telechargement.csv')
-    
 
-    
+
 
 #-------------------------------------------------------
 
