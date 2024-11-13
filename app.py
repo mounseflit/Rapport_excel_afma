@@ -283,39 +283,58 @@ def generate_taux_util(year,month,data):
 #-------------------------------------------------------
 
 
-def generate_taux_tele(data,all):
+
+def generate_taux_tele(year,month,data):
 
 
-    
     # Read the Excel file
     df = data
-    df2 = all
+    # df2 = all
 
     print('Operating for download rate...')
 
     # Filter the DataFrame to include non duplicated values
     df = df.drop_duplicates(subset=['NUM_CIN'])
-    df2 = df2.drop_duplicates(subset=['NUM_CIN'])
+    # df2 = df2.drop_duplicates(subset=['NUM_CIN'])
 
 
     # Change the N/a in 'NOM_CLIENT' to 'Non identifié'
     df['NOM_CLIENT'] = df['NOM_CLIENT'].fillna('Non identifié')
-    df2['NOM_CLIENT'] = df2['NOM_CLIENT'].fillna('Non identifié')
+    # df2['NOM_CLIENT'] = df2['NOM_CLIENT'].fillna('Non identifié')
 
-        
+
+    # Drop rows with missing values in the 'DATE_DERNIERE_CONNEXION' column
+    df = df.dropna(subset=['DATE_DERNIERE_CONNEXION'])
+    
+
     # Count the occurrences of each NOM_CLIENT
     count = df['NOM_CLIENT'].value_counts()
-    count2 = df2['NOM_CLIENT'].value_counts()
+    # count2 = df2['NOM_CLIENT'].value_counts()
+
 
     # If 'Non identifié' exists
     if 'Non identifié' in count:
             # move 'Non identifié' to the last row
         count = count.reindex(count.index.drop('Non identifié').tolist() + ['Non identifié'])
     
+    # if 'Non identifié' in count2:
+    #         # move 'Non identifié' to the last row
+    #     count2 = count2.reindex(count2.index.drop('Non identifié').tolist() + ['Non identifié'])
+
+
+    # Filter the DataFrame based on the specified year and month in 'DATE_DERNIERE_CONNEXION'
+    df = df[df['DATE_DERNIERE_CONNEXION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').year) == int(year)]
+    df = df[df['DATE_DERNIERE_CONNEXION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').month) == int(month)]
+
+
+
+    # count new occurences of NOM_CLIENT
+    count2 = df['NOM_CLIENT'].value_counts()
+    
+    # If 'Non identifié' exists
     if 'Non identifié' in count2:
             # move 'Non identifié' to the last row
         count2 = count2.reindex(count2.index.drop('Non identifié').tolist() + ['Non identifié'])
-
 
 
     # merge the new occurences with the old ones in one df, each in a column with client as index
@@ -324,15 +343,17 @@ def generate_taux_tele(data,all):
     #fill missing values with 0
     countf.fillna(0, inplace=True)
 
+
     #rename the columns
     countf.columns = ['Total_users', 'Total_adherents']
 
     #calculate the taux de telechargement
-    countf['taux_telechargement'] = countf['Total_users'] / countf['Total_adherents']
+    countf['taux_telechargement'] = countf['Total_adherents'] / countf['Total_users']
 
     #no floats in new column
     countf['Total_users'] = countf['Total_users'].astype(str)
-    countf['Total_adherents'] = countf['Total_adherents'].astype(str)
+    countf['Total_adherents'] = countf['Total_adherents'].astype(int).astype(str)
+
 
     #calculate the percentage of taux de telechargement
     countf['taux_telechargement'] = countf['taux_telechargement'] * 100 
@@ -346,6 +367,8 @@ def generate_taux_tele(data,all):
 
     #save the merged dataframe to a csv file
     countf.to_csv('taux_telechargement.csv')
+    
+
     
 
 #-------------------------------------------------------
@@ -505,7 +528,7 @@ def main():
         generate(year, data)
         group(year)
         generate_taux_util(year, month, data)
-        generate_taux_tele(data, data)
+        generate_taux_tele(year,month,data)
         generate_ratings()
         save_all()
 
