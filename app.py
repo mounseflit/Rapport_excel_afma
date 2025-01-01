@@ -179,7 +179,7 @@ def group(year):
     
     # remove .0 from the all other columns
     for col in range(2020, int(year)+1):
-        merged_df[col] = merged_df[col].astype(int).astype(str)
+        merged_df[str(col)] = merged_df[str(col)].astype(int).astype(str)
 
     # Save the merged DataFrame to a new CSV file
     merged_df.to_csv('Evolution_Global.csv', index=False)
