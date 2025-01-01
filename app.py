@@ -485,7 +485,7 @@ def main():
     st.title("🗎 AFMA : Generateur de Rapport d'Application Mobile format Excel ")
 
     # File uploader
-    uploaded_file = st.file_uploader("Veuillez télécharger le fichier Excel que vous souhaitez utiliser", type=["xlsx", "xls", "xltx", "xlsm", "xltm", "xlam", "xlsb", "csv", "txt"])
+    uploaded_file = st.file_uploader("Veuillez télécharger le fichier Excel que vous souhaitez utiliser", type=["xlsx", "xls", "xltx", "csv", "txt"])
 
     # Get the current year
     year = st.text_input("Veuillez entrer l'année de l'étude de l'évolution")
@@ -516,7 +516,7 @@ def main():
         print('Processing the file...')
 
          # Read the uploaded Excel file if it is excel and read csv if it is txt or csv
-        if uploaded_file.name.endswith('.xlsx') or uploaded_file.name.endswith('.xls') or uploaded_file.name.endswith('.xltx') or uploaded_file.name.endswith('.xlsm') or uploaded_file.name.endswith('.xltm') or uploaded_file.name.endswith('.xlam') or uploaded_file.name.endswith('.xlsb'):
+        if uploaded_file.name.endswith('.xlsx') or uploaded_file.name.endswith('.xls') or uploaded_file.name.endswith('.xltx') :
             data = pd.read_excel(uploaded_file)
         elif uploaded_file.name.endswith('.csv') or uploaded_file.name.endswith('.txt'):
             data = pd.read_csv(uploaded_file)
