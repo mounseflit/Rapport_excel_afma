@@ -175,7 +175,7 @@ def group(year):
     merged_df['Total'] = merged_df.iloc[:, 1:].sum(axis=1)
 
     # remove .0 from the all columns
-    for col in ['Total', '2020', '2021', '2022', '2023', '2024']:
+    for col in ['Total', '2020', '2021', '2022', '2023', '2024', '2025']:
         merged_df[col] = merged_df[col].astype(int).astype(str)
 
     # Save the merged DataFrame to a new CSV file
@@ -428,10 +428,7 @@ def generate_ratings():
 
 
 
-def save_all():
-
-    # Get the current year
-    year = date.today().strftime("%Y")
+def save_all(year):
 
     # List of CSV files
     csv_files = [
@@ -488,11 +485,14 @@ def main():
     # File uploader
     uploaded_file = st.file_uploader("Veuillez télécharger le fichier Excel que vous souhaitez utiliser", type=["xlsx", "xls", "xltx", "xlsm", "xltm", "xlam", "xlsb", "csv", "txt"])
 
+    # Get the current year
+    year = st.text_input("Veuillez entrer l'année de l'étude de l'évolution")
+    
     # Month selector
     month = st.selectbox("Veuillez sélectionner le mois de fin de la collecte des données", [f"{i:02d}" for i in range(1, 13)])
 
-    # Get the current year
-    year = date.today().strftime("%Y")
+    
+    
 
    
 
@@ -528,7 +528,7 @@ def main():
         generate_taux_util(year, month, data)
         generate_taux_tele(year,month,data)
         generate_ratings()
-        save_all()
+        save_all(year)
 
         st.success("Processing complete.")
 
