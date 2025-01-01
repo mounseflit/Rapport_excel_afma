@@ -174,8 +174,11 @@ def group(year):
     # Calculate the sum of the months for each row
     merged_df['Total'] = merged_df.iloc[:, 1:].sum(axis=1)
 
-    # remove .0 from the all columns
-    for col in ['Total', '2020', '2021', '2022', '2023', '2024', '2025']:
+    # remove .0 from the Total column
+    merged_df['Total'] = merged_df['Total'].astype(int).astype(str)
+    
+    # remove .0 from the all other columns
+    for col in range(2020, int(year)+1):
         merged_df[col] = merged_df[col].astype(int).astype(str)
 
     # Save the merged DataFrame to a new CSV file
@@ -303,8 +306,7 @@ def generate_taux_tele(year,month,data):
     # Change the N/a in 'NOM_CLIENT' to 'Non identifié'
     df['NOM_CLIENT'] = df['NOM_CLIENT'].fillna('Non identifié')
 
-
-
+    
     # Count the occurrences of each NOM_CLIENT
     count = df['NOM_CLIENT'].value_counts()
     # count2 = df2['NOM_CLIENT'].value_counts()
