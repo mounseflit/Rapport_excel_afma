@@ -4,3 +4,4 @@ requests
 streamlit
 XlsxWriter
 openpyxl
+duckduckgo_search
