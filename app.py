@@ -3,6 +3,7 @@ import json
 import requests
 from datetime import date
 from bs4 import BeautifulSoup
+from duckduckgo_search import DDGS
 import streamlit as st
 
 
@@ -190,18 +191,43 @@ def group(year):
 
 # Play Store Scraping
 def scrape_play(app_name):
-    url = f"https://www.google.com/search?q={app_name} play store"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    data = soup.text
+    data = ""
+    with DDGS() as ddgs:
+        results = [r for r in ddgs.text(app_name + " play store", max_results=2)]
+    for r in results:
+        response = requests.get(r["href"])
+        if response.status_code != 200:
+            continue
+        soup = BeautifulSoup(response.text, 'html.parser')
+        # Extract the text content from the HTML
+        text = soup.get_text(" ", strip=True)
+        # Limit the text to 250 characters
+        data += text
     return data
+
+
+# def scrape_apple(app_name):
+    # url = f"https://www.google.com/search?q={app_name} apple store"
+    # response = requests.get(url)
+    # soup = BeautifulSoup(response.text, 'html.parser')
+    # data = soup.text
+    # return data
+
 
 #App Store Scraping
 def scrape_apple(app_name):
-    url = f"https://www.google.com/search?q={app_name} apple store"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    data = soup.text
+    data = ""
+    with DDGS() as ddgs:
+        results = [r for r in ddgs.text(app_name + " apple store", max_results=2)]
+    for r in results:
+        response = requests.get(r["href"])
+        if response.status_code != 200:
+            continue
+        soup = BeautifulSoup(response.text, 'html.parser')
+        # Extract the text content from the HTML
+        text = soup.get_text(" ", strip=True)
+        # Limit the text to 250 characters
+        data += text
     return data
 
 # LLM API
