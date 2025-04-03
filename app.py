@@ -241,6 +241,8 @@ def send_to_ai_api(prompt):
 #-------------------------------------------------------    
 
 
+    
+
 
 def generate_taux_util(year,month,data):
 
@@ -252,20 +254,30 @@ def generate_taux_util(year,month,data):
     # Filter the DataFrame to include non duplicated values
     df = df.drop_duplicates(subset=['NUM_CIN'])
 
+        
+    
     # Change the N/a in 'NOM_CLIENT' to 'Non identifié'
     df['NOM_CLIENT'] = df['NOM_CLIENT'].fillna('Non identifié')
     
     
     # Count the occurrences of each NOM_CLIENT
     count = df['NOM_CLIENT'].value_counts()
-    
+
      # If 'Non identifié' exists
     if 'Non identifié' in count:
             # move 'Non identifié' to the last row
         count = count.reindex(count.index.drop('Non identifié').tolist() + ['Non identifié']) 
 
+
     # Drop rows with missing values in the 'DATE_DERNIERE_UTILISATION' column 
     df = df.dropna(subset=['DATE_DERNIERE_UTILISATION'])
+
+
+
+
+    
+    # Filter the DataFrame based on the 'DATE_DERNIERE_UTILISATION' column
+    # df = df[df['DATE_DERNIERE_UTILISATION'].str.contains('{}-{}'.format(str(year), str(month)))]
 
     # Filter the DataFrame based on the specified year and month in 'DATE_DERNIERE_UTILISATION'
     df = df[df['DATE_DERNIERE_UTILISATION'].apply(lambda x: pd.to_datetime(x, format='%m/%d/%Y').year) == int(year)]
@@ -279,6 +291,8 @@ def generate_taux_util(year,month,data):
             # move 'Non identifié' to the last row
         count2 = count2.reindex(count2.index.drop('Non identifié').tolist() + ['Non identifié'])
 
+
+    
     # merge the new occurences with the old ones in one df, each in a column with client as index
     countf = pd.concat([count, count2], axis=1)
 
@@ -462,7 +476,6 @@ def save_all(year):
     csv_files = [
         'Evolution_{}.csv'.format(year),
         'Evolution_Global.csv',
-        'taux_telechargement.csv',
         'taux_utilisation.csv',
         'Rating_Stores.csv'
     ]
